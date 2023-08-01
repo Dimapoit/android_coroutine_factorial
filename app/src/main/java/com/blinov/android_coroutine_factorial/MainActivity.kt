@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.blinov.android_coroutine_factorial.databinding.ActivityMainBinding
@@ -30,21 +31,24 @@ class MainActivity : AppCompatActivity() {
     private fun observeViewModel() {
 
         viewModel.state.observe(this) {
-            if (it.isError) {
-                Toast.makeText(
-                    this,
-                    "You did not entered value",
-                    Toast.LENGTH_SHORT
-                ).show()
+            binding.progressBar.visibility = ProgressBar.INVISIBLE
+            binding.buttonCalculate.isEnabled = true
+            when(it) {
+                is Error -> {
+                    Toast.makeText(
+                        this,
+                        "You did not entered value",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                is Progress -> {
+                    binding.progressBar.visibility = ProgressBar.VISIBLE
+                    binding.buttonCalculate.isEnabled = false
+                }
+                is Result -> {
+                    binding.tvFactorial.text = it.factorial
+                }
             }
-            if (it.isProgress) {
-                binding.progressBar.progress = View.VISIBLE
-                binding.buttonCalculate.isEnabled = false
-            } else {
-                binding.progressBar.progress = View.GONE
-                binding.buttonCalculate.isEnabled = true
-            }
-            binding.tvFactorial.text = it.factorial.toString()
         }
     }
 }

@@ -1,8 +1,7 @@
 package com.blinov.android_coroutine_factorial
 
-class State(
+sealed class State()
 
-    val isError: Boolean = false,
-    val isProgress: Boolean = false,
-    val factorial: String = ""
-)
+object Error: State()
+object Progress: State()
+class Result(val factorial: String): State()
