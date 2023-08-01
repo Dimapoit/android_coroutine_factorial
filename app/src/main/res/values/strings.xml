@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">android_coroutine_factorial</string>
+    <string name="calculate">Calculate</string>
+</resources>
