@@ -6,13 +6,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.blinov.android_coroutine_factorial.Result
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.math.BigInteger
 
 class MainViewModel : ViewModel() {
+
+    private  val coroutineScope = CoroutineScope(Dispatchers.Main + CoroutineName("My coroutine"))
 
     private val _state = MutableLiveData<State>()
     val state: LiveData<State>
@@ -24,22 +23,26 @@ class MainViewModel : ViewModel() {
             _state.value = Error
             return
         }
-        viewModelScope.launch {
+        coroutineScope.launch {
             val number = value.toLong()
-            val result = factorial(number)
+            val result = withContext(Dispatchers.Default) {
+                factorial(number)
+            }
             _state.value = Result(result)
         }
     }
 
-    private suspend fun factorial(value: Long): String {
-        return withContext(
-            Dispatchers.Default
-        ) {
-            var result = BigInteger.ONE
-            for (i in 1..value) {
-                result = result.multiply(BigInteger.valueOf(i))
-            }
-            result.toString()
+    override fun onCleared() {
+        super.onCleared()
+        coroutineScope.cancel()
+    }
+
+    private fun factorial(value: Long): String {
+
+        var result = BigInteger.ONE
+        for (i in 1..value) {
+            result = result.multiply(BigInteger.valueOf(i))
         }
+        return result.toString()
     }
 }
